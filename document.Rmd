@@ -1,0 +1,100 @@
+---
+title: "worldfootballR"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+## How to install
+Look below on how to install the package
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(worldfootballR)
+```
+
+## Overview
+
+This package is designed to allow users to extract various world football results and player statistics from the following popular football (soccer) data sites:
+
+FBref
+Transfermarket
+Understat
+Fotmob
+
+## Usage
+Package Vignettes have been built to help you get started with the package
+You can extract data from FBref, Transfermarket, Understat and fotmob. You can do all of this using functions. 
+
+
+Join FBref and Transfermarket data
+You're able to join data player between FBref and Transfermarket using the function below. Currently there are over 6,100 players who have been listed for teams in the Big 5 euro leagues. 
+
+```{r}
+mapped_players <- player_dictionary_mapping()
+dplyr::glimpse(mapped_players)
+```
+You us ethe previous funstion, in order for you to combine data from teh FBref and the transfermarket sites. 
+## Team URL's
+You can get a list of URL's for each team in a particular season. You use the function below to obtain data from the FBref.
+
+```{r}
+fb_teams_urls("https://fbref.com/en/comps/9/Premier-League-Stats")
+```
+
+As you can see up there, the function actually worked out, so that you're able to see the FBref url's in order see the stats of every premier league team. 
+
+## Transfermarket Functions
+
+You can use the function below to get the stats for team players
+```{r}
+tm_team_player_urls(team_url = "https://www.transfermarkt.com/Liverpool/startseite/verein/1132/saison_id/2020")
+```
+With the function below, you're able to see the league table by matchday in England
+```{r}
+epl_matchday_1_table <- tm_matchday_table(country_name="England", start_year="2020", matchday=1)
+dplyr::glimpse(epl_matchday_1_table)
+```
+There are also many different functions that you can use to get more data from transfermarket. The list of functions that you're able to use are as follows: team url's, player url's, staff url's, league table, league debutants, expiring contracts, league inquiries, transfer activity by team, and squad player stats. You can use all of these functions, in order to get a lot of data from this package. 
+
+## Understat
+
+Understat will help you find the probability of a team winning. This is really nice to use kind of when you want to find out what is the probability of your favorite team to win. 
+```{r}
+team_players <- understat_team_players_stats(team_url = c("https://understat.com/team/Liverpool/2020", "https://understat.com/team/Manchester_City/2020"))
+dplyr::glimpse(team_players)
+```
+The previous table talks about the different players. For example, for the 20/21 season Mohamed salah was expected to complete 37 games, play 3085 minutes, and score 22 goals.
+
+```{r}
+raheem_sterling_shots <- understat_player_shots(player_url = "https://understat.com/player/618")
+dplyr::glimpse(raheem_sterling_shots)
+```
+The next table also shows stats about soccer players in the premier league.
+```{r}
+epl_player_xg_2021 <- fotmob_get_season_stats(
+  country = "ENG",
+  league_name = "Premier League",
+  season = "2020/2021",
+  stat_type = "xg",
+  team_or_player = "player"
+)
+
+epl_player_xg_2021 %>%
+  dplyr::select(
+    league_id = id,
+    league_name = name,
+    season_id,
+    season_name,
+    team_id,
+    ## NOTE: particiant_id is a typo on behalf of fotmob! We leave it as is.
+    player_id = particiant_id,
+    player_name = participant_name,
+    minutes_played,
+    matches_played,
+    xg = stat_value,
+    g = sub_stat_value
+  ) %>%
+  dplyr::glimpse()
+```
